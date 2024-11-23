@@ -1,6 +1,6 @@
 # MC-LLaVA: Multi-Concept Personalized Vision-Language Model
 
-<a href=https://arxiv.org/abs/2411.11706><img src="https://img.shields.io/badge/arxiv-2312.07381-orange?logo=arxiv&logoColor=white"/></a>
+<a href=https://arxiv.org/abs/2411.11706><img src="https://img.shields.io/badge/arxiv-2411.11706-orange?logo=arxiv&logoColor=white"/></a>
 
 <div style="text-align: center;">
   <img src="./assets/mcllava_icon.png" width="200" alt="MC-LLaVA Image">
