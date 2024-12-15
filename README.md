@@ -79,3 +79,8 @@ pip install -e .
 ## Acknowledgement
 
 This code is heavily inspired by [LLaVA](https://github.com/haotian-liu/LLaVA) and [Yo’LLaVA](https://github.com/WisconsinAIVision/YoLLaVA). Thank you for your outstanding work!
+
+
+## License
+
+This dataset is licensed under the [MIT License](./LICENSE). You are free to use, modify, and distribute this dataset under the terms of the MIT License.
