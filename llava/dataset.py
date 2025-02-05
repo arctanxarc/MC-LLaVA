@@ -19,7 +19,7 @@ from torchvision import transforms
 
 
 dataset_root = "/workspace/data/MulBench"
-json_file4concepts = os.path.join(dataset_root, "test_concepts.json")
+json_file4concepts = os.path.join(dataset_root, "concept_type.json")
 with open(json_file4concepts) as f:
     data_w_case = json.load(f)
 
