@@ -60,11 +60,13 @@ Once the trained parameters are ready, there are two versions of the testing cod
     `cd eval; python eval_w_som.py`
 (For details on the script parameters, see the .py file.)
 
-## Dataset (Currently does not include the concept of objects.)
+## Dataset& Trained Weight
+
+(Currently does not include the concept of objects. Will be updated as soon as possible.) 
 
 ### Download
 
-The multi-concept personalized dataset proposed in our paper can be downloaded [here](https://drive.google.com/file/d/1088_EQXaURmpNcc0SLPVX3glmKZ4HBDQ/view?usp=sharing).
+The multi-concept personalized dataset proposed in our paper and a part of trained weight can be downloaded [here](https://drive.google.com/file/d/1088_EQXaURmpNcc0SLPVX3glmKZ4HBDQ/view?usp=sharing).
 
 ### Introduction
 
