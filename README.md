@@ -145,14 +145,11 @@ The scenario A_L_Y comes from the TV show “Spy × Family” and includes three
 ## BibTeX
 
 ```
-@misc{an2024mcllavamulticonceptpersonalizedvisionlanguage,
-      title={MC-LLaVA: Multi-Concept Personalized Vision-Language Model}, 
-      author={Ruichuan An and Sihan Yang and Ming Lu and Kai Zeng and Yulin Luo and Ying Chen and Jiajun Cao and Hao Liang and Qi She and Shanghang Zhang and Wentao Zhang},
-      year={2024},
-      eprint={2411.11706},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2411.11706}, 
+@article{an2024mc,
+  title={Mc-llava: Multi-concept personalized vision-language model},
+  author={An, Ruichuan and Yang, Sihan and Lu, Ming and Zhang, Renrui and Zeng, Kai and Luo, Yulin and Cao, Jiajun and Liang, Hao and Chen, Ying and She, Qi and others},
+  journal={arXiv preprint arXiv:2411.11706},
+  year={2024}
 }
 ```
 
