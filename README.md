@@ -23,7 +23,6 @@ Official implementation of [**MC-LLaVA: Multi-Concept Personalized Vision-Langua
 - [x] Release training and testing code. (2024/12/6)
 - [x] Open-source full datasets for research and development. (2024/12/15)
 - [x] Update codes for testing with personalized visual prompt. (2025/6/4)
-- [x] Update dataset (Visual grounding testing data). (2025/6/4)
 
 ## Code
 
