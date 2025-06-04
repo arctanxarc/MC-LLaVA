@@ -10,7 +10,7 @@ from llava.constants import IMAGE_TOKEN_INDEX
 from nltk.translate.bleu_score import sentence_bleu
 from nltk.translate.bleu_score import SmoothingFunction
 from llava.mm_utils import tokenizer_image_token_batch
-from llava.dataset import *
+from llava.dataset_som import *
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -20,22 +20,23 @@ def get_test_args():
     parser.add_argument("--model_path", type=str, default="liuhaotian/llava-v1.6-vicuna-13b")
     parser.add_argument("--dataset_root", type=str, default="../mcdataset")
     parser.add_argument("--checkpoint_path", type=str, default="../train/checkpoints")
-    parser.add_argument("--model_base", type=str, default=None)
+    parser.add_argument("--model_base", type=str, default=None) 
     parser.add_argument("--conv_mode", type=str, default=None)
     parser.add_argument("--sep", type=str, default=",")
     parser.add_argument("--temperature", type=float, default=0.2)
-    parser.add_argument("--concept_names", nargs='+', default=["Bafan", "Xuezhixia"])
-    parser.add_argument("--ckpt_name", type=str, default="train")
-    parser.add_argument("--mode", type=str, default="choice")
+    parser.add_argument("--concept_names", nargs='+', default=["Bafan", "Xuezhixia"]) 
+    parser.add_argument("--ckpt_name", type=str, default="yollava") 
+    parser.add_argument("--mode", type=str, default="choice") 
     parser.add_argument("--more_negative", action="store_true")
     parser.add_argument("--num_tokens", type=int, default=16)
     return parser.parse_args()
 
 
-def load_trained_weights(model, tokenizer, checkpoint_path, sks_names, ckpt_name, epoch2load=14, prefix_token_count=16):
+def load_trained_weights(model, tokenizer, checkpoint_path, sks_names, ckpt_name, epoch2load=11, prefix_token_count=16):
     all_placeholder_tokens = []
     for i, sks_name in enumerate(sks_names):
-        placeholder_tokens = [f'<{sks_name}>'] + [f'<token{j + prefix_token_count * i}>' for j in range(prefix_token_count)]
+        tmp_name = sks_name.split('_')[0]
+        placeholder_tokens = [f'<{tmp_name}>'] + [f'<token{j + prefix_token_count * i}>' for j in range(prefix_token_count)]
         num_added_tokens = tokenizer.add_tokens(placeholder_tokens)
         model.resize_token_embeddings(len(tokenizer))
         
@@ -43,6 +44,8 @@ def load_trained_weights(model, tokenizer, checkpoint_path, sks_names, ckpt_name
         
         token_path = os.path.join(checkpoint_path, sks_name, ckpt_name, f'{epoch2load}-token.pt')
         lmhead_path = os.path.join(checkpoint_path, sks_name, ckpt_name, f'{epoch2load}-lmhead.pt')
+        # token_path = os.path.join(checkpoint_path, sks_name, ckpt_name, f'best-token.pt')
+        # lmhead_path = os.path.join(checkpoint_path, sks_name, ckpt_name, f'best-lmhead.pt')
         
         if os.path.exists(token_path) and os.path.exists(lmhead_path):
             token_weights = torch.load(token_path).to(model.device)
@@ -105,6 +108,16 @@ def analyze_rec(conv_types, preds, gts):
     print(f"  Recall for si_sq: {recall_si_sq}//{true_num_si_sq}, for mi_sq: {recall_mi_sq}//{true_num_mi_sq}, for mi_mq: {recall_mi_mq}//{true_num_mi_mq}. Total: {recall_total}//{true_num_total}")
     print(f"  No recall for si_sq: {no_recall_si_sq}//{false_num_si_sq}, for mi_sq: {no_recall_mi_sq}//{false_num_mi_sq}, for mi_mq: {no_recall_mi_mq}//{false_num_mi_mq}. Total: {no_recall_total}//{false_num_total}")
 
+def analyze_yo_rec(preds, gts):
+    # calculate recall and no_recall
+    true_num = sum([1 for i in range(len(preds)) if gts[i] == "Yes"])
+    false_num = sum([1 for i in range(len(preds)) if gts[i] == "No"])
+    
+    recall = sum([1 for i in range(len(preds)) if preds[i] == gts[i] and gts[i] == "Yes"]) / true_num if true_num else 0
+    no_recall = sum([1 for i in range(len(preds)) if preds[i] == gts[i] and gts[i] == "No"]) / false_num if false_num else 0
+    
+    print(f"  Recall: {recall}//{true_num}, No recall: {no_recall}//{false_num}, Total: {(recall + no_recall) / 2}//{len(preds)}")
+    
 
 def analyze_choice(conv_types, preds, gts):
     
@@ -137,7 +150,6 @@ def analyze_text_choice(conv_types, preds, gts):
     
     
 def analyze_vqa(conv_types, preds, gts):
-    
     num_si_sq = conv_types.count("si_sq")
     num_mi_sq = conv_types.count("mi_sq")
     num_mi_mq = conv_types.count("mi_mq")
@@ -190,9 +202,10 @@ def main(args):
     # Load concepts knowledge
     all_placeholder_tokens = load_trained_weights(model, tokenizer, args.checkpoint_path, args.concept_names, args.ckpt_name, prefix_token_count=args.num_tokens)
     sks_prompt = ""
-    for i, sks_name in enumerate(args.concept_names):
+    for i, _ in enumerate(args.concept_names):
         sks_prompt_i = f"{all_placeholder_tokens[i][0]} is {''.join(all_placeholder_tokens[i][1:])}."
-        sks_prompt += sks_prompt_i    
+        sks_prompt += sks_prompt_i
+    print(sks_prompt)
     
     if args.mode == "rec":
         test_dataset = TestDatasetForMultiRec(args.dataset_root, 
@@ -223,14 +236,13 @@ def main(args):
                                         model.device,
                                         model.config,
                                         image_processor)
-    else:
-        raise NotImplementedError(f"Mode {args.mode} is not implemented yet.")
     
     with torch.no_grad():
         conv_types = []
         preds = []
         gts = []
         quaries = []
+        prompts = []
         for i in tqdm(range(len(test_dataset))):
             example = test_dataset[i]
             
@@ -259,14 +271,18 @@ def main(args):
                     names_pool = args.concept_names
                     query = f"Can you see "
                     for name in names_pool:
-                        query += f"<{name}>, "
-                    query = query[:-2] + " in the image? Don't answer the question but remember it, and only response a detailed caption for the image. Your caption:"
+                        tmp_name = name.split('_')[0]
+                        query += f"<{tmp_name}>, "
+                    query = query[:-2] + " in the image? Don't answer the question but remember it, and only response a detailed caption for the image. Your caption: "
                 
-                prompt  = [get_query(args, query, model=model, sks_system_prompt = sks_prompt).conv.get_prompt()]
+                # if args.mode == "vg":
+                prompt  = [get_query(args, query, model=model, sks_system_prompt = sks_prompt + example['som_prompt']).conv.get_prompt()]
+                # else:
+                    # prompt  = [get_query(args, query, model=model, sks_system_prompt = sks_prompt).conv.get_prompt()]
                 input_ids, _ = tokenizer_image_token_batch(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt", return_labels=True)
                 outputs = model.generate(input_ids.to(model.device), images=image, image_sizes=image_sizes)
                 answer = tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
-
+                prompts.append(prompt)
                 quaries.append(query)
                 preds.append(answer)
                 if args.mode != "caption":
@@ -274,9 +290,11 @@ def main(args):
                 else:
                     gts.append(example["query"])
                 conv_types.append(conv_type)
-    
+
     print("    Quaries: ")
     print(f"    {quaries}")
+    print("    Prompts: ")
+    print(f"    {prompts}")
     print("    Predictions: ")
     print(f"    {preds}")
     print("    Ground truths: ")
@@ -287,16 +305,18 @@ def main(args):
     assert len(conv_types) == len(preds), "Number of predictions and conversation types do not match."
     assert len(conv_types) == len(gts), "Number of ground truths and conversation types do not match."
     
-    if args.mode == "rec":
-        analyze_rec(conv_types, preds, gts)
-    elif args.mode == "choice" or args.mode == "vg":
-        analyze_choice(conv_types, preds, gts)
+    if args.mode == "rec" or args.mode == "yorec":
+        analyze_rec(conv_types, preds, gts) # acc, recall
+    elif args.mode == "choice"  or args.mode == "vg":
+        analyze_choice(conv_types, preds, gts) # acc
     elif args.mode == "vqa":
-        analyze_vqa(conv_types, preds, gts)
+        analyze_vqa(conv_types, preds, gts) # bleu
     elif args.mode == "caption":
-        analyze_caption(conv_types, preds, gts)
+        analyze_caption(conv_types, preds, gts) # caption recall
+    elif args.mode == "yollava":
+        analyze_yo_rec(preds, gts) # recall
     elif args.mode == "text":
-        analyze_text_choice(conv_types, preds, gts)
+        analyze_text_choice(conv_types, preds, gts) # acc
     else:
         raise NotImplementedError(f"Mode {args.mode} is not implemented yet.")
     

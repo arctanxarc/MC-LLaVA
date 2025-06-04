@@ -16,12 +16,14 @@ Official implementation of [**MC-LLaVA: Multi-Concept Personalized Vision-Langua
 
 ---
 
-> **Abstract**: Current vision-language models (VLMs) show exceptional abilities across diverse tasks including visual question answering. To enhance user experience in practical applications, recent studies investigate VLM personalization to understand user-provided concepts. However, existing studies mainly focus on single-concept personalization, neglecting the existence and interplay of multiple concepts, which limits the real-world applicability of personalized VLMs. In this paper, we propose the first multi-concept personalization method named MC-LLaVA along with a high-quality multi-concept personalization dataset. Specifically, MC-LLaVA uses a joint training strategy incorporating multiple concepts in a single training step, allowing VLMs to perform accurately in multi-concept personalization. To reduce the cost of joint training, MC-LLaVA leverages visual token information for concept token initialization, yielding improved concept representation and accelerating joint training. To advance multi-concept personalization research, we further contribute a high-quality dataset. We carefully collect images from various movies that contain multiple characters and manually generate the multi-concept question-answer samples. Our dataset features diverse movie types and question-answer types. We conduct comprehensive qualitative and quantitative experiments to demonstrate that MC-LLaVA can achieve impressive multi-concept personalized responses, paving the way for VLMs to become better user-specific assistants.
+> **Abstract**: Current vision-language models (VLMs) show exceptional abilities across diverse tasks, such as visual question answering. To enhance user experience, recent studies investigate VLM personalization to understand user-provided concepts. However, they mainly focus on single-concept personalization, neglecting the existence and interplay of multiple concepts, which limits real-world applicability. This paper proposes the first multi-concept personalization paradigm, MC-LLaVA. Specifically, MC-LLaVA employs a multi-concept instruction tuning strategy, effectively integrating multiple concepts in a single training step. To reduce the costs related to joint training, we propose a personalized textual prompt that uses visual token information to initialize concept tokens. Additionally, we introduce a personalized visual prompt during inference, aggregating location confidence maps for enhanced recognition and grounding capabilities. To advance multi-concept personalization research, we further contribute a high-quality instruction tuning dataset. We carefully collect images with multiple characters and objects from movies and manually generate question-answer samples for multi-concept scenarios, featuring superior diversity. Comprehensive qualitative and quantitative experiments demonstrate that MC-LLaVA can achieve impressive multi-concept personalized responses, paving the way for VLMs to become better user-specific assistants.
 
 ## TODO 🚀
 
 - [x] Release training and testing code. (2024/12/6)
 - [x] Open-source full datasets for research and development. (2024/12/15)
+- [x] Update codes for testing with personalized visual prompt. (2025/6/4)
+- [x] Update dataset (Visual grounding testing data). (2025/6/4)
 
 ## Code
 
@@ -113,6 +115,7 @@ Specifically, the dataset comprises 40 scenarios (one film or TV show correspond
 │           ├── 4.png
 │           ├── choice.json # Visual multiple-choice Q&A pairs for testing
 │           ├── position.json   # Positional information specifying the relative positions of characters in each image
+│           ├── vqa_position.json   # Visual Q&A pairs for visual grounding testing
 │           ├── qa.json # Visual Q&A pairs for testing
 │           └── vqa.json    # Text-only Q&A pairs for testing
 └── two_concept # Scenarios with two characters; includes thirty such scenarios. The file structure is the same as three_concept.
