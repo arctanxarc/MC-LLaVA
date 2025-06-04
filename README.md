@@ -50,9 +50,17 @@ pip install -e .
 
 ### Testing
 
-(TODO)
+Once the trained parameters are ready, there are two versions of the testing code:
+- **Without personalized visual prompt**:
+  - `cd eval; python eval.py`
+- **With personalized visual prompt**:
+  - For easier debugging, we first compute and save the images with personalized visual prompts for all concepts in an offline manner:
+    `cd eval; python gen_som.py --dataset_root <your dataset path>`
+  - Then, run the evaluation:
+    `cd eval; python eval_w_som.py`
+(For details on the script parameters, see the .py file.)
 
-## Dataset
+## Dataset (Currently does not include the concept of objects.)
 
 ### Download
 
